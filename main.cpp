@@ -172,7 +172,12 @@ int main()
 
 		// Menu option handling should go here
 		switch (menuOption) {
-		case 1: break;
+		case 1: 
+			cout << "What length words do you want to use? ";
+			cin >> lengthOfWordsToUse;
+			startWord = "";
+			endWord = "";
+			break;
 		case 2: break;
 		case 3: break;
 		case 4: break;
