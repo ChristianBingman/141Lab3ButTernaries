@@ -115,6 +115,30 @@ void dictionaryScan(string fileName, vector<int>& wordsNumByLength, int& totalWo
 	}
 }
 
+void printMainMenu(){
+	cout << "Choose from the following options:  \n"
+			<< "   1. Change the word length        \n"
+			<< "   2. Display some dictionary words \n"
+			<< "   3. Get start and end words       \n"
+			<< "   4. Play the word change game     \n"
+			<< "   5. Find the end word with debug  \n"
+			<< "   6. Find the end word             \n"
+			<< "   7. Display an answer sequence    \n"
+			<< "   8. Exit the program              \n"
+			<< "Your choice -> ";
+}
+
+void displayTotWordCount(int totalWordsNumber, const vector<int>& wordsNumByLength){
+	cout << "Total number of words in dictionary file : " << totalWordsNumber << endl << endl;
+		cout << "Word lengths where there are more than 1400 words: " << endl;
+		cout << "Length  How Many" << endl << "------  --------" << endl;
+		for (int i = 0; i < wordsNumByLength.size(); i++) {
+			if (wordsNumByLength.at(i) > 1400) {
+				cout << setw(6) << i + 1 << setw(8) << wordsNumByLength.at(i) << endl;
+			}
+		}
+		cout << endl;
+}
 
 
 //-----------------------------------------------------------------------------------------
@@ -128,47 +152,22 @@ int main()
 	int menuOption = -1;                // User menu option selection
 	string fileName = "dictionary.txt";	// Using this in case file name will change
 	int totalWordsNumber = 0;			// Used to store total number of words
-
 	// Display ID info
 	displayIdInfo();
-
 	// Seed the random number generator
 	srand(1);  // Change 1 to time(0) for non-predictable results, but leave as 1 for testing
-
 	//Check the amount of words in dictionary
 	dictionaryScan(fileName, wordsNumByLength, totalWordsNumber);
-
 	//resizing dictionary according to the amount of words starting with the letter
 	readInWordsFromFile(fileName, dictionary, lengthOfWordsToUse, wordsNumByLength.at(lengthOfWordsToUse - 1));
-
-
+	displayTotWordCount(totalWordsNumber, wordsNumByLength);
 	// Menu display and handling infinite loop
 	do {
-		cout << "Total number of words in dictionary file : " << totalWordsNumber << endl << endl;
-		cout << "Word lengths where there are more than 1400 words: " << endl;
-		cout << "Length  How Many" << endl << "------  --------" << endl;
-		for (int i = 0; i < wordsNumByLength.size(); i++) {
-			if (wordsNumByLength.at(i) > 1400) {
-				cout << setw(6) << i + 1 << setw(8) << wordsNumByLength.at(i) << endl;
-			}
-		}
-		cout << endl;
-
 		cout << "Currently we have " << dictionary.size() << " words of length "
 			<< lengthOfWordsToUse << " in the dictionary.  \n"
 			<< "Changing from '" << startWord << "' to '" << endWord << "'" << endl
 			<< endl;
-
-		cout << "Choose from the following options:  \n"
-			<< "   1. Change the word length        \n"
-			<< "   2. Display some dictionary words \n"
-			<< "   3. Get start and end words       \n"
-			<< "   4. Play the word change game     \n"
-			<< "   5. Find the end word with debug  \n"
-			<< "   6. Find the end word             \n"
-			<< "   7. Display an answer sequence    \n"
-			<< "   8. Exit the program              \n"
-			<< "Your choice -> ";
+		printMainMenu();
 		cin >> menuOption;
 
 		// Menu option handling should go here
