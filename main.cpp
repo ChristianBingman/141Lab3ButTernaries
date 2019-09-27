@@ -207,8 +207,6 @@ int main()
 		case 8: exit(0); break;
 		default: exit(0); break;
 		}
-
-
 	} while (true);
 
 	return 0;
