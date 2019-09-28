@@ -159,14 +159,10 @@ void displaySomeDictionaryWords(const vector <string>& dictionary) {
 }
 
 void deBuggy(const vector<string>& dictionary, string startWord, string endWord){
-	int startInd, endInd;
-	for(int i = 0; i < dictionary.size(); i++){
-		if(dictionary[i] == startWord) startInd = i;
-		if(dictionary[i] == endWord) endInd = i;
-	}
-	for(int j = startInd; j <= endInd; j++){
-		cout << dictionary[j] << endl;
-	}
+	long startInd, endInd;
+	startInd = binarySearch(startWord, dictionary);
+	endInd = binarySearch(endWord, dictionary);
+	cout << startInd << " " << endInd;
 }
 
 
@@ -213,6 +209,7 @@ int main()
 		case 3: break;
 		case 4: break;
 		case 5: 
+			printf("%s %s", startWord, startWord);
 			deBuggy(dictionary, startWord, endWord);
 			break;
 		case 6: break;
