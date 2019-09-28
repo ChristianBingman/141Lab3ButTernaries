@@ -38,8 +38,8 @@ void readInWordsFromFile(string fileName, vector <string>& dictionary, int curre
 	string inputWord;				    // stores each word as it is read
 	int currentWordNum = 0;							// current index of dictionary
 
+	// Set new size to the dictionary based on how many words of chosen length are in the dictionary
 	dictionary.resize(newDictionarySize);
-
 	// Open input file
 	inputFileStream.open(fileName.c_str());
 
@@ -52,11 +52,15 @@ void readInWordsFromFile(string fileName, vector <string>& dictionary, int curre
 	// Read all the words from the file and store those of current lenght into dictionary
 	while (inputFileStream >> inputWord) {
 		if (inputWord.length() == currentWordLength) {
+			if (isupper(inputWord[0])) {
+				for (int i = 0; i < inputWord.length(); i++) {
+					inputWord[i] = tolower(inputWord[i]);
+				}
+			}
 			dictionary.at(currentWordNum) = inputWord;
 			currentWordNum++;
 		}
 	}
-
 	inputFileStream.close();    // Close the input file.
 }
 
@@ -67,7 +71,7 @@ void readInWordsFromFile(string fileName, vector <string>& dictionary, int curre
 //
 long binarySearch(
 	string searchWord,            // word to be looked up
-	vector< string> dictionary)   // the dictionary of words
+	const vector< string>& dictionary)   // the dictionary of words
 {
 	long low, mid, high;     // array indices for binary search
 	long searchResult = -1;  // Stores index of word if search succeeded, else -1
@@ -91,11 +95,9 @@ long binarySearch(
 			low = mid + 1; // word should be located after the mid location
 		}
 	}
-
 	// Word was not found
 	return -1;
 }//end binarySearch()
-
 
 void dictionaryScan(string fileName, vector<int>& wordsNumByLength, int& totalWordsCount) {
 	ifstream inputFileStream; // Declare the input file stream
@@ -141,9 +143,49 @@ void displayTotWordCount(int totalWordsNumber, const vector<int>& wordsNumByLeng
 	cout << endl;
 }
 
+void getStartEndWords(const vector <string>& dictionary, string& startWord, string& endWord) {
+	long wordSearchIndex;
+	cout << endl;
+	// User input is requested again if it doesn't pass the criteria
+	do {
+		cout << "Enter starting word, or 'r' for a random word: ";
+		cin >> startWord;
+		if (startWord == "r") {
+			startWord = dictionary[rand() % dictionary.size()]; // Picking a random line from the dictionary
+			break;
+		}
+		// If user wishes to exit the program
+		if (endWord == "exit") {
+			exit(0);
+		}
+		wordSearchIndex = binarySearch(startWord, dictionary);
+		// Check for the word length and presence in the dictionary
+		if ((startWord.length() != dictionary.at(0).length()) || (wordSearchIndex == -1)) {
+			cout << "Input error" << endl;
+			startWord = "";
+		}
+	} while ((startWord.length() != dictionary.at(0).length()) && (wordSearchIndex == -1));
+	// Similar to the input of the startWord
+	do {
+		cout << "Enter ending word, or 'r' for a random word: ";
+		cin >> endWord;
+		if (endWord == "r") {
+			endWord = dictionary[rand() % dictionary.size()];
+			break;
+		}
+		if (endWord == "exit") {
+			exit(0);
+		}
+		wordSearchIndex = binarySearch(endWord, dictionary);
+		if ((endWord.length() != dictionary.at(0).length()) || (wordSearchIndex == -1)) {
+			cout << "Input error" << endl;
+			endWord = "";
+		}
+	} while ((endWord.length() - 1 != dictionary.at(0).length()) && (wordSearchIndex == -1));
+}
+
 void displaySomeDictionaryWords(const vector <string>& dictionary) {
 	int startIndex, lastIndex;			// User-inputted indexes for displaying words
-
 	//Input indexes for displayed words
 	do {
 		cout << "Enter the start and end index values of words to display: ";
@@ -154,10 +196,9 @@ void displaySomeDictionaryWords(const vector <string>& dictionary) {
 	for (int i = startIndex; i <= lastIndex; i++) {
 		cout << i << " " << dictionary.at(i) << endl;
 	}
-
-
 }
 
+<<<<<<< HEAD
 void deBuggy(const vector<string>& dictionary, string startWord, string endWord){
 	long startInd, endInd;
 	startInd = binarySearch(startWord, dictionary);
@@ -166,6 +207,8 @@ void deBuggy(const vector<string>& dictionary, string startWord, string endWord)
 }
 
 
+=======
+>>>>>>> 7258a45c8057bbc46f7c47295545e4ee7b56be14
 //-----------------------------------------------------------------------------------------
 int main()
 {
@@ -202,11 +245,14 @@ int main()
 			cin >> lengthOfWordsToUse;
 			startWord = "";
 			endWord = "";
+			readInWordsFromFile(fileName, dictionary, lengthOfWordsToUse, wordsNumByLength.at(lengthOfWordsToUse - 1));
 			break;
 		case 2:
 			displaySomeDictionaryWords(dictionary);
 			break;
-		case 3: break;
+		case 3:
+			getStartEndWords(dictionary, startWord, endWord);
+			break;
 		case 4: break;
 		case 5: 
 			printf("%s %s", startWord, startWord);
@@ -218,7 +264,6 @@ int main()
 		default: exit(0); break;
 		}
 	} while (true);
-
 	return 0;
 }//end main()
 
