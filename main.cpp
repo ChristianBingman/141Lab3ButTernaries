@@ -198,7 +198,6 @@ void displaySomeDictionaryWords(const vector <string>& dictionary) {
 	}
 }
 
-<<<<<<< HEAD
 void deBuggy(const vector<string>& dictionary, string startWord, string endWord){
 	long startInd, endInd;
 	startInd = binarySearch(startWord, dictionary);
@@ -207,8 +206,6 @@ void deBuggy(const vector<string>& dictionary, string startWord, string endWord)
 }
 
 
-=======
->>>>>>> 7258a45c8057bbc46f7c47295545e4ee7b56be14
 //-----------------------------------------------------------------------------------------
 int main()
 {
