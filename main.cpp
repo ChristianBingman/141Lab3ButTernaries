@@ -140,6 +140,17 @@ void displayTotWordCount(int totalWordsNumber, const vector<int>& wordsNumByLeng
 		cout << endl;
 }
 
+void deBuggy(const vector<string>& dictionary, string startWord, string endWord){
+	int startInd, endInd;
+	for(int i = 0; i < dictionary.size(); i++){
+		if(dictionary[i] == startWord) startInd = i;
+		if(dictionary[i] == endWord) endInd = i;
+	}
+	for(int j = startInd; j <= endInd; j++){
+		cout << dictionary[j] << endl;
+	}
+}
+
 
 //-----------------------------------------------------------------------------------------
 int main()
@@ -181,7 +192,9 @@ int main()
 		case 2: break;
 		case 3: break;
 		case 4: break;
-		case 5: break;
+		case 5: 
+			deBuggy(dictionary, startWord, endWord);
+			break;
 		case 6: break;
 		case 7: break;
 		case 8: exit(0); break;
