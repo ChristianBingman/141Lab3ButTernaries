@@ -36,7 +36,7 @@ void readInWordsFromFile(string fileName, vector <string>& dictionary, int curre
 {
 	ifstream inputFileStream;
 	string inputWord;				    // stores each word as it is read
-	int i = 0;							// current index of dictionary
+	int currentWordNum = 0;							// current index of dictionary
 
 	dictionary.resize(newDictionarySize);
 
@@ -49,10 +49,11 @@ void readInWordsFromFile(string fileName, vector <string>& dictionary, int curre
 		exit(-1);
 	}
 
-	// Read all the words from the file, and display them
+	// Read all the words from the file and store those of current lenght into dictionary
 	while (inputFileStream >> inputWord) {
 		if (inputWord.length() == currentWordLength) {
-			dictionary.at(i) = inputWord;
+			dictionary.at(currentWordNum) = inputWord;
+			currentWordNum++;
 		}
 	}
 
@@ -115,29 +116,46 @@ void dictionaryScan(string fileName, vector<int>& wordsNumByLength, int& totalWo
 	}
 }
 
-void printMainMenu(){
+void printMainMenu() {
 	cout << "Choose from the following options:  \n"
-			<< "   1. Change the word length        \n"
-			<< "   2. Display some dictionary words \n"
-			<< "   3. Get start and end words       \n"
-			<< "   4. Play the word change game     \n"
-			<< "   5. Find the end word with debug  \n"
-			<< "   6. Find the end word             \n"
-			<< "   7. Display an answer sequence    \n"
-			<< "   8. Exit the program              \n"
-			<< "Your choice -> ";
+		<< "   1. Change the word length        \n"
+		<< "   2. Display some dictionary words \n"
+		<< "   3. Get start and end words       \n"
+		<< "   4. Play the word change game     \n"
+		<< "   5. Find the end word with debug  \n"
+		<< "   6. Find the end word             \n"
+		<< "   7. Display an answer sequence    \n"
+		<< "   8. Exit the program              \n"
+		<< "Your choice -> ";
 }
 
-void displayTotWordCount(int totalWordsNumber, const vector<int>& wordsNumByLength){
+void displayTotWordCount(int totalWordsNumber, const vector<int>& wordsNumByLength) {
 	cout << "Total number of words in dictionary file : " << totalWordsNumber << endl << endl;
-		cout << "Word lengths where there are more than 1400 words: " << endl;
-		cout << "Length  How Many" << endl << "------  --------" << endl;
-		for (int i = 0; i < wordsNumByLength.size(); i++) {
-			if (wordsNumByLength.at(i) > 1400) {
-				cout << setw(6) << i + 1 << setw(8) << wordsNumByLength.at(i) << endl;
-			}
+	cout << "Word lengths where there are more than 1400 words: " << endl;
+	cout << "Length  How Many" << endl << "------  --------" << endl;
+	for (int i = 0; i < wordsNumByLength.size(); i++) {
+		if (wordsNumByLength.at(i) > 1400) {
+			cout << setw(6) << i + 1 << setw(8) << wordsNumByLength.at(i) << endl;
 		}
-		cout << endl;
+	}
+	cout << endl;
+}
+
+void displaySomeDictionaryWords(const vector <string>& dictionary) {
+	int startIndex, lastIndex;			// User-inputted indexes for displaying words
+
+	//Input indexes for displayed words
+	do {
+		cout << "Enter the start and end index values of words to display: ";
+		cin >> startIndex >> lastIndex;
+	} while ((startIndex < 0) || (lastIndex > dictionary.size() - 1) || (startIndex > lastIndex)); //check that indexes are not out of bound
+
+	//Display words from startIndex to lastIndex
+	for (int i = startIndex; i <= lastIndex; i++) {
+		cout << i << " " << dictionary.at(i) << endl;
+	}
+
+
 }
 
 void deBuggy(const vector<string>& dictionary, string startWord, string endWord){
@@ -183,13 +201,15 @@ int main()
 
 		// Menu option handling should go here
 		switch (menuOption) {
-		case 1: 
+		case 1:
 			cout << "What length words do you want to use? ";
 			cin >> lengthOfWordsToUse;
 			startWord = "";
 			endWord = "";
 			break;
-		case 2: break;
+		case 2:
+			displaySomeDictionaryWords(dictionary);
+			break;
 		case 3: break;
 		case 4: break;
 		case 5: 
@@ -200,8 +220,6 @@ int main()
 		case 8: exit(0); break;
 		default: exit(0); break;
 		}
-
-
 	} while (true);
 
 	return 0;
