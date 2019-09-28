@@ -38,8 +38,8 @@ void readInWordsFromFile(string fileName, vector <string>& dictionary, int curre
 	string inputWord;				    // stores each word as it is read
 	int currentWordNum = 0;							// current index of dictionary
 
+	// Set new size to the dictionary based on how many words of chosen length are in the dictionary
 	dictionary.resize(newDictionarySize);
-
 	// Open input file
 	inputFileStream.open(fileName.c_str());
 
@@ -99,8 +99,6 @@ long binarySearch(
 	return -1;
 }//end binarySearch()
 
-
-
 void dictionaryScan(string fileName, vector<int>& wordsNumByLength, int& totalWordsCount) {
 	ifstream inputFileStream; // Declare the input file stream
 	string line; //variable for reading lines
@@ -148,23 +146,26 @@ void displayTotWordCount(int totalWordsNumber, const vector<int>& wordsNumByLeng
 void getStartEndWords(const vector <string>& dictionary, string& startWord, string& endWord) {
 	long wordSearchIndex;
 	cout << endl;
+	// User input is requested again if it doesn't pass the criteria
 	do {
 		cout << "Enter starting word, or 'r' for a random word: ";
 		cin >> startWord;
 		if (startWord == "r") {
-			startWord = dictionary[rand() % dictionary.size()];
+			startWord = dictionary[rand() % dictionary.size()]; // Picking a random line from the dictionary
 			break;
 		}
+		// If user wishes to exit the program
 		if (endWord == "exit") {
 			exit(0);
 		}
 		wordSearchIndex = binarySearch(startWord, dictionary);
+		// Check for the word length and presence in the dictionary
 		if ((startWord.length() != dictionary.at(0).length()) || (wordSearchIndex == -1)) {
 			cout << "Input error" << endl;
 			startWord = "";
 		}
 	} while ((startWord.length() != dictionary.at(0).length()) && (wordSearchIndex == -1));
-
+	// Similar to the input of the startWord
 	do {
 		cout << "Enter ending word, or 'r' for a random word: ";
 		cin >> endWord;
@@ -180,7 +181,6 @@ void getStartEndWords(const vector <string>& dictionary, string& startWord, stri
 			cout << "Input error" << endl;
 			endWord = "";
 		}
-
 	} while ((endWord.length() - 1 != dictionary.at(0).length()) && (wordSearchIndex == -1));
 }
 
@@ -234,6 +234,7 @@ int main()
 			cin >> lengthOfWordsToUse;
 			startWord = "";
 			endWord = "";
+			readInWordsFromFile(fileName, dictionary, lengthOfWordsToUse, wordsNumByLength.at(lengthOfWordsToUse - 1));
 			break;
 		case 2:
 			displaySomeDictionaryWords(dictionary);
@@ -249,7 +250,6 @@ int main()
 		default: exit(0); break;
 		}
 	} while (true);
-
 	return 0;
 }//end main()
 
