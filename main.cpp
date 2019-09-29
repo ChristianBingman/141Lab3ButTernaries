@@ -198,11 +198,60 @@ void displaySomeDictionaryWords(const vector <string>& dictionary) {
 	}
 }
 
-void deBuggy(const vector<string>& dictionary, string startWord, string endWord){
+long findIndex (const vector<string>& dictionary, string searchWord){
+	int ind = 0;
+	for (int i = 0; i < dictionary.size(); i++){
+		if(dictionary[i] == searchWord) {
+			ind = i;
+			return ind;
+		}
+	}
+	return -1;
+}
+
+int deBuggy(const vector<string>& dictionary, const string startWord, const string endWord, int lengthOfWords){
 	long startInd, endInd;
-	startInd = binarySearch(startWord, dictionary);
-	endInd = binarySearch(endWord, dictionary);
-	cout << startInd << " " << endInd;
+	startInd = findIndex(dictionary, startWord);
+	endInd = findIndex(dictionary, endWord);
+	bool found = false;
+	int similarTo = 0;
+	int similarToCurrInd = 0;
+	vector<int> startingPos = {0,0};
+	string tempWord = startWord;
+	vector<vector<string>> similarWords = {{startWord}};
+	cout << endl;
+	while(!found){
+
+		for (int i = 0; i < lengthOfWords; i++){
+			for(int j = 97; j < 123; j++){
+				tempWord[i] = j;
+				if(findIndex(dictionary, tempWord) != -1 && tempWord != startWord){
+					similarWords[similarTo].push_back(tempWord);
+					similarToCurrInd++;
+					
+				}
+				if(tempWord == endWord){
+					return 0;
+				}
+
+			}
+			tempWord[i] = startWord[i];
+			
+		}
+		cout << similarTo << ". " << similarWords[similarTo][0] << "\t";
+		for(int j = 1; j < similarWords[similarTo].size(); j++){
+			cout << j << ":" << similarWords[similarTo][j] << " "; 
+		}
+		cout << endl << endl;
+		if((startingPos[1] + 1) > similarWords[similarTo].size()){ startingPos[0]++; startingPos[1] = 1;}
+		else startingPos[1]++;
+		cout << similarWords[startingPos[0]][startingPos[1]] << endl;
+		similarWords.push_back({similarWords[startingPos[0]][startingPos[1]]});
+		tempWord = similarWords[startingPos[0]][startingPos[1]];
+		similarTo++;
+	}
+	return -1;
+	
 }
 
 
@@ -217,6 +266,7 @@ int main()
 	int menuOption = -1;                // User menu option selection
 	string fileName = "dictionary.txt";	// Using this in case file name will change
 	int totalWordsNumber = 0;			// Used to store total number of words
+	
 	// Display ID info
 	displayIdInfo();
 	// Seed the random number generator
@@ -252,8 +302,7 @@ int main()
 			break;
 		case 4: break;
 		case 5: 
-			printf("%s %s", startWord, startWord);
-			deBuggy(dictionary, startWord, endWord);
+			deBuggy(dictionary, startWord, endWord, lengthOfWordsToUse);
 			break;
 		case 6: break;
 		case 7: break;
@@ -263,6 +312,3 @@ int main()
 	} while (true);
 	return 0;
 }//end main()
-
-
-
