@@ -200,17 +200,21 @@ void getStartEndWords(const vector <string>& dictionary, string& startWord, stri
 }
 
 void playWordChangingGame(string startWord, string endWord, const vector <string>& dictionary) {
-	string currentWord, userInputWord;
+	string currentWord, userInputWord; // Separate the user input since it has to pass all the checks first
 	int turnsCounter = 1, differentLettersAmount;
+	// Check whether start and end words are set
 	if ((startWord == "") || (endWord == "")) {
-		cout << "Start word or end word is empty. Exiting the program";
-		exit(0);
+		cout << "   *** You must first set start and end words.  Please retry.";
+		return;
 	}
 	currentWord = startWord;
 	do {
 		cout << turnsCounter << "Previous word is '" << currentWord << "'. Next word: ";
 		cin >> userInputWord;
-		if (verifyWord(userInputWord, dictionary)) {
+		if (userInputWord == "exit") {
+			return;
+		}
+		if (verifyWord(userInputWord, dictionary)) { //Check that the inputted word is in the dictionary
 			differentLettersAmount = 0;
 			for (int i = 0; i < userInputWord.length(); i++) {
 				if (userInputWord.at(i) != currentWord.at(i)) {
@@ -227,7 +231,7 @@ void playWordChangingGame(string startWord, string endWord, const vector <string
 				exit(0);
 			}
 		}
-	} while (currentWord != endWord);
+	} while (currentWord != endWord); // When user enters endWord and it passes all the checks, loop will end
 	cout << "Congratulations, you did it!" << endl;
 }
 
