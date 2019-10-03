@@ -260,50 +260,118 @@ long findIndex (const vector<string>& dictionary, string searchWord){
 	return -1;
 }
 
-int deBuggy(const vector<string>& dictionary, const string startWord, const string endWord, int lengthOfWords){
-	long startInd, endInd;
-	startInd = findIndex(dictionary, startWord);
-	endInd = findIndex(dictionary, endWord);
-	bool found = false;
-	int similarTo = 0;
-	int similarToCurrInd = 0;
-	vector<int> startingPos = {0,0};
-	string tempWord = startWord;
-	vector<vector<string>> similarWords = {{startWord}};
-	cout << endl;
-	while(!found){
+// int deBuggy(const vector<string>& dictionary, const string startWord, const string endWord, int lengthOfWords){
+// 	bool found = false;
+// 	int similarTo = 0;
+// 	int similarToCurrInd = 0;
+// 	vector<int> startingPos = {0,0};
+// 	string tempWord = startWord;
+// 	vector<vector<string>> similarWords = {{startWord}};
+// 	cout << endl;
+// 	while(!found){
 
-		for (int i = 0; i < lengthOfWords; i++){
+// 		for (int i = 0; i < lengthOfWords; i++){
+// 			for(int j = 97; j < 123; j++){
+// 				tempWord[i] = j;
+// 				if(findIndex(dictionary, tempWord) != -1 && tempWord != startWord){
+// 					similarWords[similarTo].push_back(tempWord);
+// 					similarToCurrInd++;
+					
+// 				}
+// 				if(tempWord == endWord){
+// 					return 0;
+// 				}
+
+// 			}
+// 			tempWord[i] = startWord[i];
+			
+// 		}
+// 		cout << similarTo << ". " << similarWords[similarTo][0] << "\t";
+// 		for(int j = 1; j < similarWords[similarTo].size(); j++){
+// 			cout << j << ":" << similarWords[similarTo][j] << " "; 
+// 		}
+// 		cout << endl << endl;
+// 		if((startingPos[1] + 1) > similarWords[similarTo].size()){ startingPos[0]++; startingPos[1] = 1;}
+// 		else startingPos[1]++;
+// 		cout << similarWords[startingPos[0]][startingPos[1]] << endl;
+// 		similarWords.push_back({similarWords[startingPos[0]][startingPos[1]]});
+// 		tempWord = similarWords[startingPos[0]][startingPos[1]];
+// 		similarTo++;
+// 	}
+// 	return -1;
+	
+// }
+
+vector<string> findSimilar(const vector<string>& dictionary, string origWord, string wordToLookFor){
+	vector<string> foundSimilar;
+	string tempWord = wordToLookFor;
+	for(int i = 0; i < wordToLookFor.length(); i++){
+		if(wordToLookFor[i] == origWord[i]){
 			for(int j = 97; j < 123; j++){
 				tempWord[i] = j;
-				if(findIndex(dictionary, tempWord) != -1 && tempWord != startWord){
-					similarWords[similarTo].push_back(tempWord);
-					similarToCurrInd++;
-					
+				if(findIndex(dictionary, tempWord) != -1 && tempWord != wordToLookFor){
+					foundSimilar.push_back(tempWord);
 				}
-				if(tempWord == endWord){
-					return 0;
-				}
-
 			}
-			tempWord[i] = startWord[i];
-			
 		}
-		cout << similarTo << ". " << similarWords[similarTo][0] << "\t";
-		for(int j = 1; j < similarWords[similarTo].size(); j++){
-			cout << j << ":" << similarWords[similarTo][j] << " "; 
-		}
-		cout << endl << endl;
-		if((startingPos[1] + 1) > similarWords[similarTo].size()){ startingPos[0]++; startingPos[1] = 1;}
-		else startingPos[1]++;
-		cout << similarWords[startingPos[0]][startingPos[1]] << endl;
-		similarWords.push_back({similarWords[startingPos[0]][startingPos[1]]});
-		tempWord = similarWords[startingPos[0]][startingPos[1]];
-		similarTo++;
+		tempWord = wordToLookFor;
 	}
-	return -1;
-	
+	return foundSimilar;
 }
+
+void printDeBuggy(const vector<vector<string>>& allWords){
+	int startWordCounter = 0;
+	int totalWordCounter = 1;
+	cout << endl;
+	for(int i = 0; i < allWords.size(); i++){
+		for(int j = 0; j < allWords[i].size(); j++){
+			if(j == 0) cout << startWordCounter << ": " << allWords[i][j] << "\t";
+			else{
+				cout << totalWordCounter << ":" << allWords[i][j] << " ";
+				totalWordCounter++;
+			}
+		}
+		startWordCounter++;
+		cout << endl;
+	}
+	cout << endl;
+}
+
+void genDeBuggy(const vector<string>& dictionary, string startWord, string endWord){
+	int testCounter = 0;
+	int currStart[2] = {0,0};
+	vector<vector<string>> allWords;
+	bool found = false;
+	string currWord = startWord;
+	while(!found){
+		allWords.push_back(vector<string> {currWord});
+		vector<string> similarWords = findSimilar(dictionary, startWord, allWords[currStart[0]][currStart[1]]);
+		for(int i = 0; i < similarWords.size(); i++){
+			allWords[testCounter].push_back(similarWords[i]);
+			if(similarWords[i] == endWord){
+				found = true;
+				break;
+			}
+		}
+		if(found == true) break;
+		testCounter++;
+		cout << allWords[currStart[0]].size() << " " << currStart[1] + 1 << endl;
+		if(allWords[currStart[0]].size() == currStart[1] + 1){
+			currStart[0]++;
+			if(allWords[currStart[0]+1].size() > 1){
+			currStart[1] = 1;}else
+			{
+				while(!(allWords[currStart[0]+1].size() > 1)){
+					currStart[0]++;
+				}
+			}
+			
+		}else {currStart[1]++;}
+		currWord = allWords[currStart[0]][currStart[1]];
+	}
+	printDeBuggy(allWords);
+}
+
 
 
 //-----------------------------------------------------------------------------------------
@@ -317,6 +385,7 @@ int main()
 	int menuOption = -1;                // User menu option selection
 	string fileName = "dictionary.txt";	// Using this in case file name will change
 	int totalWordsNumber = 0;			// Used to store total number of words
+	vector<string> foundSimilar = {};
 	
 	// Display ID info
 	displayIdInfo();
@@ -351,17 +420,12 @@ int main()
 		case 3:
 			getStartEndWords(dictionary, startWord, endWord);
 			break;
-<<<<<<< HEAD
-		case 4: break;
-		case 5: 
-			deBuggy(dictionary, startWord, endWord, lengthOfWordsToUse);
-			break;
-=======
 		case 4:
 			playWordChangingGame(startWord, endWord, dictionary);
 			break;
-		case 5: break;
->>>>>>> eaba4560d62af3d5ad90282652253a34b6b6a857
+		case 5: 
+			genDeBuggy(dictionary, startWord, endWord);
+			break;
 		case 6: break;
 		case 7: break;
 		case 8: exit(0); break;
