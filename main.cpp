@@ -38,8 +38,8 @@ void readInWordsFromFile(string fileName, vector <string>& dictionary, int curre
 	string inputWord;				    // stores each word as it is read
 	int currentWordNum = 0;							// current index of dictionary
 
+	// Set new size to the dictionary based on how many words of chosen length are in the dictionary
 	dictionary.resize(newDictionarySize);
-
 	// Open input file
 	inputFileStream.open(fileName.c_str());
 
@@ -52,11 +52,15 @@ void readInWordsFromFile(string fileName, vector <string>& dictionary, int curre
 	// Read all the words from the file and store those of current lenght into dictionary
 	while (inputFileStream >> inputWord) {
 		if (inputWord.length() == currentWordLength) {
+			if (isupper(inputWord[0])) {
+				for (int i = 0; i < inputWord.length(); i++) {
+					inputWord[i] = tolower(inputWord[i]);
+				}
+			}
 			dictionary.at(currentWordNum) = inputWord;
 			currentWordNum++;
 		}
 	}
-
 	inputFileStream.close();    // Close the input file.
 }
 
@@ -93,11 +97,9 @@ long binarySearch(
 			low = mid + 1; // word should be located after the mid location
 		}
 	}
-
 	// Word was not found
 	return -1;
 }//end binarySearch()
-
 
 void dictionaryScan(string fileName, vector<int>& wordsNumByLength, int& totalWordsCount) {
 	ifstream inputFileStream; // Declare the input file stream
@@ -143,9 +145,100 @@ void displayTotWordCount(int totalWordsNumber, const vector<int>& wordsNumByLeng
 	cout << endl;
 }
 
+bool verifyWord(string word, const vector <string>& dictionary) {
+	long wordSearchIndex = binarySearch(word, dictionary);
+	// Check for the word length and presence in the dictionary
+	if ((word.length() != dictionary.at(0).length())) {
+		cout << "   *** '" << word << "' is not of length " << dictionary.at(0).length() << ". Please retry." << endl;
+		return false;
+	}
+	else
+		if (wordSearchIndex == -1) {
+			cout << "   *** '" << word << "' is not in the dictionary. Please retry." << endl;
+			return false;
+		}
+		else {
+			return true;
+		}
+}
+
+void getStartEndWords(const vector <string>& dictionary, string& startWord, string& endWord) {
+	cout << endl;
+	bool isWordVerifyed = false;
+	// User input is requested again if it doesn't pass the criteria
+	do {
+		cout << "Enter starting word, or 'r' for a random word: ";
+		cin >> startWord;
+		if (startWord == "r") {
+			startWord = dictionary[rand() % dictionary.size()]; // Picking a random line from the dictionary
+			break;
+		}
+		// If user wishes to exit the program
+		if (endWord == "exit") {
+			exit(0);
+		}
+		// Check for the word length and presence in the dictionary
+		isWordVerifyed = verifyWord(startWord, dictionary);
+		if (!isWordVerifyed) {
+			startWord = "";
+		}
+	} while (!isWordVerifyed);
+	// Similar to the input of the startWord
+	do {
+		cout << "Enter ending word, or 'r' for a random word: ";
+		cin >> endWord;
+		if (endWord == "r") {
+			endWord = dictionary[rand() % dictionary.size()];
+			break;
+		}
+		if (endWord == "exit") {
+			exit(0);
+		}
+		isWordVerifyed = verifyWord(endWord, dictionary);
+		if (!isWordVerifyed) {
+			endWord = "";
+		}
+	} while (!isWordVerifyed);
+}
+
+void playWordChangingGame(string startWord, string endWord, const vector <string>& dictionary) {
+	string currentWord, userInputWord; // Separate the user input since it has to pass all the checks first
+	int turnsCounter = 1, differentLettersAmount;
+	// Check whether start and end words are set
+	if ((startWord == "") || (endWord == "")) {
+		cout << "   *** You must first set start and end words.  Please retry.";
+		return;
+	}
+	currentWord = startWord;
+	do {
+		cout << turnsCounter << "Previous word is '" << currentWord << "'. Next word: ";
+		cin >> userInputWord;
+		if (userInputWord == "exit") {
+			return;
+		}
+		if (verifyWord(userInputWord, dictionary)) { //Check that the inputted word is in the dictionary
+			differentLettersAmount = 0;
+			for (int i = 0; i < userInputWord.length(); i++) {
+				if (userInputWord.at(i) != currentWord.at(i)) {
+					differentLettersAmount++;
+				}
+			}
+			if (differentLettersAmount == 1) {
+				currentWord = userInputWord;
+				turnsCounter++;
+			}
+			else
+			{
+				cout << "   *** '" << userInputWord << "' must be exactly 1 character different.  Please retry.";
+				exit(0);
+			}
+		}
+	} while (currentWord != endWord); // When user enters endWord and it passes all the checks, loop will end
+	cout << "Congratulations, you did it!" << endl;
+}
+
 void displaySomeDictionaryWords(const vector <string>& dictionary) {
 	int startIndex, lastIndex;			// User-inputted indexes for displaying words
-
 	//Input indexes for displayed words
 	do {
 		cout << "Enter the start and end index values of words to display: ";
@@ -156,22 +249,7 @@ void displaySomeDictionaryWords(const vector <string>& dictionary) {
 	for (int i = startIndex; i <= lastIndex; i++) {
 		cout << i << " " << dictionary.at(i) << endl;
 	}
-
-
 }
-
-void deBuggy(const vector <string>& dictionary, string startWord, string endWord){
-	long startInd, endInd;
-	cout << startWord << " " << endWord << endl;
-	for (int i = 0; i < dictionary.size(); i++){
-		if(dictionary[i] == startWord) startInd = i;
-		if(dictionary[i] == endWord) endInd = i;
-	}
-	// startInd = binarySearch(startWord, dictionary);
-	// endInd = binarySearch(endWord, dictionary);
-	cout << startInd << " " << endInd << endl;
-}
-
 
 //-----------------------------------------------------------------------------------------
 int main()
@@ -195,7 +273,7 @@ int main()
 	displayTotWordCount(totalWordsNumber, wordsNumByLength);
 	// Menu display and handling infinite loop
 	do {
-		cout << "Currently we have " << dictionary.size() << " words of length "
+		cout << endl << "Currently we have " << dictionary.size() << " words of length "
 			<< lengthOfWordsToUse << " in the dictionary.  \n"
 			<< "Changing from '" << startWord << "' to '" << endWord << "'" << endl
 			<< endl;
@@ -209,23 +287,24 @@ int main()
 			cin >> lengthOfWordsToUse;
 			startWord = "";
 			endWord = "";
+			readInWordsFromFile(fileName, dictionary, lengthOfWordsToUse, wordsNumByLength.at(lengthOfWordsToUse - 1));
 			break;
 		case 2:
 			displaySomeDictionaryWords(dictionary);
 			break;
-		case 3: break;
-		case 4: break;
-		case 5: 
-			cout << startWord << " " << endWord << endl;
-			deBuggy(dictionary, startWord, endWord);
+		case 3:
+			getStartEndWords(dictionary, startWord, endWord);
 			break;
+		case 4:
+			playWordChangingGame(startWord, endWord, dictionary);
+			break;
+		case 5: break;
 		case 6: break;
 		case 7: break;
 		case 8: exit(0); break;
 		default: exit(0); break;
 		}
 	} while (true);
-
 	return 0;
 }//end main()
 
