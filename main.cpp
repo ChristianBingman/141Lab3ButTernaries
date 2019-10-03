@@ -67,19 +67,21 @@ void readInWordsFromFile(string fileName, vector <string>& dictionary, int curre
 //
 long binarySearch(
 	string searchWord,            // word to be looked up
-	vector< string> dictionary)   // the dictionary of words
+	const vector< string>& dictionary)   // the dictionary of words
 {
 	long low, mid, high;     // array indices for binary search
 	long searchResult = -1;  // Stores index of word if search succeeded, else -1
-
+	cout << searchWord << endl;
 	// Binary search for word
 	low = 0;
 	high = dictionary.size() - 1;
 	while (low <= high) {
 		mid = (low + high) / 2;
+		cout << mid;
 		// SearchResult negative value means word is to the left, positive value means
 		// word is to the right, value of 0 means word was found
 		searchResult = searchWord.compare(dictionary[mid]);
+		cout << searchResult << endl;
 		if (searchResult == 0) {
 			// Word IS in dictionary, so return the index where the word was found
 			return mid;
@@ -158,11 +160,16 @@ void displaySomeDictionaryWords(const vector <string>& dictionary) {
 
 }
 
-void deBuggy(const vector<string>& dictionary, string startWord, string endWord){
+void deBuggy(const vector <string>& dictionary, string startWord, string endWord){
 	long startInd, endInd;
-	startInd = binarySearch(startWord, dictionary);
-	endInd = binarySearch(endWord, dictionary);
-	cout << startInd << " " << endInd;
+	cout << startWord << " " << endWord << endl;
+	for (int i = 0; i < dictionary.size(); i++){
+		if(dictionary[i] == startWord) startInd = i;
+		if(dictionary[i] == endWord) endInd = i;
+	}
+	// startInd = binarySearch(startWord, dictionary);
+	// endInd = binarySearch(endWord, dictionary);
+	cout << startInd << " " << endInd << endl;
 }
 
 
@@ -209,7 +216,7 @@ int main()
 		case 3: break;
 		case 4: break;
 		case 5: 
-			printf("%s %s", startWord, startWord);
+			cout << startWord << " " << endWord << endl;
 			deBuggy(dictionary, startWord, endWord);
 			break;
 		case 6: break;
