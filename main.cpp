@@ -75,17 +75,17 @@ long binarySearch(
 {
 	long low, mid, high;     // array indices for binary search
 	long searchResult = -1;  // Stores index of word if search succeeded, else -1
-	cout << searchWord << endl;
+	// cout << searchWord << endl;
 	// Binary search for word
 	low = 0;
 	high = dictionary.size() - 1;
 	while (low <= high) {
 		mid = (low + high) / 2;
-		cout << mid;
+		// cout << mid;
 		// SearchResult negative value means word is to the left, positive value means
 		// word is to the right, value of 0 means word was found
 		searchResult = searchWord.compare(dictionary[mid]);
-		cout << searchResult << endl;
+		// cout << searchResult << endl;
 		if (searchResult == 0) {
 			// Word IS in dictionary, so return the index where the word was found
 			return mid;
@@ -251,6 +251,61 @@ void displaySomeDictionaryWords(const vector <string>& dictionary) {
 	}
 }
 
+long findIndex (const vector<string>& dictionary, string searchWord){
+	int ind = 0;
+	for (int i = 0; i < dictionary.size(); i++){
+		if(dictionary[i] == searchWord) {
+			ind = i;
+			return ind;
+		}
+	}
+	return -1;
+}
+
+int findSimilar(const vector<string>& dictionary, vector<string>& foundSimilar, string origWord, string wordToLookFor, vector<int>& currCounters, string endWord, int verbosityLevel){
+	string tempWord = wordToLookFor;
+	// Loop through the word to try all possible combinations of a word
+
+		if(verbosityLevel == 2)cout << endl << currCounters[0] << ": " << wordToLookFor << "\t";
+		currCounters[0]++;
+	for(int i = 0; i < wordToLookFor.length(); i++){
+		//if(wordToLookFor[i] == origWord[i]){
+			for(int j = 97; j < 123; j++){
+				tempWord[i] = j;
+				if(binarySearch(tempWord, dictionary) != -1 && tempWord != wordToLookFor && findIndex(foundSimilar, tempWord) == -1 && tempWord != origWord){
+					
+					if(verbosityLevel == 2)cout << currCounters[1] << ": " << tempWord << " ";
+					foundSimilar.push_back(tempWord);
+					currCounters[1]++;
+					if(tempWord == endWord){
+						cout << endl << "Winning Sequence Was Found!";
+						return 1;
+					}
+				}
+			}
+		//}
+		tempWord = wordToLookFor;
+	}
+	return 0;
+}
+
+// Pass the dictionary by reference, so it isn't copied
+void genDeBuggy(const vector<string>& dictionary, string startWord, string endWord, int verbosityLevel = 2){
+	vector<string> similarWords;
+	vector<int> counter = {0, 1, 0};
+	int notFound = 0;
+	findSimilar(dictionary, similarWords, startWord, startWord, counter, endWord, verbosityLevel);
+	while(notFound == 0){
+		notFound = findSimilar(dictionary, similarWords, startWord, similarWords[counter[2]], counter, endWord, verbosityLevel);
+		counter[2]++;
+		if(similarWords[similarWords.size()-1] == similarWords[counter[2]]){
+			cout << "Word Not Found" << endl;
+		}
+	}
+}
+
+
+
 //-----------------------------------------------------------------------------------------
 int main()
 {
@@ -262,6 +317,8 @@ int main()
 	int menuOption = -1;                // User menu option selection
 	string fileName = "dictionary.txt";	// Using this in case file name will change
 	int totalWordsNumber = 0;			// Used to store total number of words
+	vector<string> foundSimilar = {};
+	
 	// Display ID info
 	displayIdInfo();
 	// Seed the random number generator
@@ -298,8 +355,12 @@ int main()
 		case 4:
 			playWordChangingGame(startWord, endWord, dictionary);
 			break;
-		case 5: break;
-		case 6: break;
+		case 5: 
+			genDeBuggy(dictionary, startWord, endWord);
+			break;
+		case 6: 
+			genDeBuggy(dictionary, startWord, endWord, 0);
+			break;
 		case 7: break;
 		case 8: exit(0); break;
 		default: exit(0); break;
@@ -307,6 +368,3 @@ int main()
 	} while (true);
 	return 0;
 }//end main()
-
-
-
