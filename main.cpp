@@ -297,6 +297,38 @@ int lookForWord(const vector<string>& dictionary, string startWord, string endWo
 					if(verbosityLevel == 2) cout << counters[1] << ":" << tempWord << " ";
 					counters[1]++;
 					if(tempWord == endWord) {
+						
+						if(verbosityLevel == 1){
+							cout << counters[1]-1 << ":" << tempWord << endl;
+							cout << counters[0] << ":" << allWords[wordIndicies[wordIndicies.size()-1]] << endl; 
+							string wordToSearch = allWords[wordIndicies[wordIndicies.size()-1]];
+							int indexCounter[] = {0,1};
+							bool KOT = false;
+							while(!KOT){
+							for(int similarLoop = wordIndicies[indexCounter[0]]+1; similarLoop < wordIndicies[indexCounter[1]];similarLoop++){
+								if(allWords[similarLoop] == wordToSearch){
+									wordToSearch = allWords[wordIndicies[indexCounter[0]]];
+									cout << indexCounter[0] << ": " << allWords[wordIndicies[indexCounter[0]]] << endl;
+									indexCounter[0] = 0;
+									indexCounter[1] = 1;
+									similarLoop = 0;
+									continue;
+								}
+								if(wordToSearch == allWords[0]){
+									KOT = true;
+									break;
+								}
+			
+
+							}
+							if(indexCounter[1] >= wordIndicies.size()) break;
+							else{
+								indexCounter[0]++;
+								indexCounter[1]++;
+							}}
+							
+						}
+
 						cout << endl << "Word Sequence Found!" << endl;
 						return 0;
 
@@ -307,6 +339,7 @@ int lookForWord(const vector<string>& dictionary, string startWord, string endWo
 			}
 		}
 		if(verbosityLevel == 2) cout << endl;
+		// If the next word is a parent word than skip
 		if(intSearch(counters[2]+1, wordIndicies) != -1) {
 			counters[2]+=2;
 			startWord = allWords[counters[2]-1];
