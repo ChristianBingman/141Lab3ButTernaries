@@ -99,6 +99,14 @@ long binarySearch(
 	return -1;
 }//end binarySearch()
 
+long regularSearch(string searchWord, const vector< string>& dictionary) {
+	for (int i = 0; i < dictionary.size(); i++) {
+		if (dictionary.at(i) == searchWord)
+			return i;
+	}
+	return -1;
+}
+
 void dictionaryScan(string fileName, vector<int>& wordsNumByLength, int& totalWordsCount) {
 	ifstream inputFileStream; // Declare the input file stream
 	string line; //variable for reading lines
@@ -158,6 +166,70 @@ bool verifyWord(string word, const vector <string>& dictionary) {
 		else {
 			return true;
 		}
+}
+
+bool findSimilarWords(const vector <string>& dictionary, string word, string endWord, vector <string>& currentWordCollection, bool hideOutput) {
+	int letterDifference;
+	for (int i = 0; i < dictionary.size(); i++) {
+		letterDifference = 0;
+		for (int j = 0; j < word.length(); j++) {
+			if (word[j] != dictionary.at(i)[j]) {
+				letterDifference++;
+			}
+			if (letterDifference > 1) {
+				break;
+			}
+		}
+		if ((letterDifference == 1) && (regularSearch(dictionary.at(i), currentWordCollection) == -1)) {
+			currentWordCollection.push_back(dictionary.at(i));
+			if (!hideOutput) {
+				cout << currentWordCollection.size() - 1 << ":" << dictionary.at(i) << " ";
+			}
+			if (dictionary.at(i) == endWord) {
+				cout << endl << endl;
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+void createWordChain(const vector <string>& dictionary, string startWord, string endWord, vector <string>& wordChain, bool hideOutput = true, bool displayReverseSequence = false) {
+	int currentWordInd = 0;
+	string currentSearchWord;
+	bool endWordFound = false;
+	vector <int> searchedWordsIndexes;
+	wordChain.resize(0);
+	wordChain.push_back(startWord);
+	searchedWordsIndexes.push_back(0);
+	do {
+		currentSearchWord = wordChain.at(currentWordInd);
+		if (!hideOutput) {
+			cout << endl << currentWordInd << ". " << currentSearchWord << ":   ";
+		}
+		int previousWordChainSize = wordChain.size();
+		endWordFound = findSimilarWords(dictionary, currentSearchWord, endWord, wordChain, hideOutput);
+		if (!endWordFound) {
+			currentWordInd++;
+			if (wordChain.size() > previousWordChainSize) {
+				searchedWordsIndexes.push_back(previousWordChainSize + 1);
+			}
+			else {
+				searchedWordsIndexes.push_back(-1);
+			}
+		}
+	} while ((!endWordFound) && (wordChain.size() > currentWordInd));
+	if (endWordFound) {
+		cout << "Winning sequence was found!" << endl;
+		/*if (displayReverseSequence) {
+			int currentParentIndex
+			while (wordChain.size() )
+		}*/
+	}
+	else
+	{
+		cout << "Winning sequence was not found!" << endl;
+	}
 }
 
 void getStartEndWords(const vector <string>& dictionary, string& startWord, string& endWord) {
@@ -252,7 +324,7 @@ void displaySomeDictionaryWords(const vector <string>& dictionary) {
 //-----------------------------------------------------------------------------------------
 int main()
 {
-	vector< string> dictionary;    		// Vector of dictionary words read in from file
+	vector< string> dictionary, wordChain;    		// Vector of dictionary words read in from file
 	vector <int> wordsNumByLength;		// Vector of the amount of words where number of words is stored under the index of their lenght-1
 	int lengthOfWordsToUse = 3;         // Default length of word to use in word transformation
 	string startWord = "dog";           // The start word for transformation
@@ -296,8 +368,12 @@ int main()
 		case 4:
 			playWordChangingGame(startWord, endWord, dictionary);
 			break;
-		case 5: break;
-		case 6: break;
+		case 5:
+			createWordChain(dictionary, startWord, endWord, wordChain, false);
+			break;
+		case 6:
+			createWordChain(dictionary, startWord, endWord, wordChain);
+			break;
 		case 7: break;
 		case 8: exit(0); break;
 		default: exit(0); break;
