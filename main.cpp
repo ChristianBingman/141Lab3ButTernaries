@@ -49,7 +49,7 @@ void readInWordsFromFile(string fileName, vector <string>& dictionary, int curre
 		exit(-1);
 	}
 
-	// Read all the words from the file and store those of current lenght into dictionary
+	// Read all the words from the file and store those of currentth into dictionary
 	while (inputFileStream >> inputWord) {
 		if (inputWord.length() == currentWordLength) {
 			if (isupper(inputWord[0])) {
@@ -75,15 +75,17 @@ long binarySearch(
 {
 	long low, mid, high;     // array indices for binary search
 	long searchResult = -1;  // Stores index of word if search succeeded, else -1
-
+	// cout << searchWord << endl;
 	// Binary search for word
 	low = 0;
 	high = dictionary.size() - 1;
 	while (low <= high) {
 		mid = (low + high) / 2;
+		// cout << mid;
 		// SearchResult negative value means word is to the left, positive value means
 		// word is to the right, value of 0 means word was found
 		searchResult = searchWord.compare(dictionary[mid]);
+		// cout << searchResult << endl;
 		if (searchResult == 0) {
 			// Word IS in dictionary, so return the index where the word was found
 			return mid;
@@ -110,7 +112,7 @@ void dictionaryScan(string fileName, vector<int>& wordsNumByLength, int& totalWo
 	}
 	//count total number of words and number of words by their length
 	while (getline(inputFileStream, line)) {
-		if (line.length() > wordsNumByLength.size()) {  // if the lenght hasn't been represented already
+		if (line.length() > wordsNumByLength.size()) {  // if the length hasn't been represented already
 			wordsNumByLength.resize(line.length(), 0);  // give additional memory to the vector for new data (second parameter sets default value to 0)
 		}
 		wordsNumByLength.at(line.length() - 1)++;
@@ -248,18 +250,93 @@ void displaySomeDictionaryWords(const vector <string>& dictionary) {
 		cout << i << " " << dictionary.at(i) << endl;
 	}
 }
+// The poorly implemented binary search function seems to only work correctly with the dictionary.
+int linearSearch(string searchWord, const vector<string>& dictionary){
+	for(int i = 0; i < dictionary.size(); i++){
+		if(searchWord == dictionary[i]) {return 1;}
+	}
+	return -1;
+}
+
+int intSearch(int searchInt, const vector<int>& indicieVector){
+	for(int i = 0; i < indicieVector.size(); i++){
+		if(indicieVector[i] == searchInt){
+			return i;
+		}
+	}
+	return -1;
+}
+
+int lookForWord(const vector<string>& dictionary, string startWord, string endWord, int verbosityLevel = 0){
+	if(startWord == "" || endWord == "" || dictionary.empty()){
+		return -1;
+	}
+	// Starting Word
+	string tempWord = startWord;
+	// Vector to store words in
+	vector<string> allWords;
+	// Vector that contains the indicies of the starting words
+	vector<int> wordIndicies;
+	// Loop til found
+	vector<int> counters = {0, 1, 0};
+	bool found = false;
+	while(!found){
+		// Will get the next indicie to be pushed on to of allWords
+		wordIndicies.push_back(allWords.size());
+		// Push the tempWord value onto allWords
+		allWords.push_back(tempWord);
+		if(verbosityLevel == 2) cout << counters[0] << ": " << tempWord << "\t";
+		
+		for(int currLetter = 0; currLetter < tempWord.length(); currLetter++){
+			if(tempWord[currLetter] == startWord[currLetter]){
+			for(int newLetter = 97; newLetter < 123; newLetter++){
+				tempWord[currLetter] = newLetter;
+				// If the word is in the dictionary add it to allWords and print it
+				if(binarySearch(tempWord, dictionary) != -1 && linearSearch(tempWord, allWords) == -1){
+					allWords.push_back(tempWord);
+					if(verbosityLevel == 2) cout << counters[1] << ":" << tempWord << " ";
+					counters[1]++;
+					if(tempWord == endWord) {
+						cout << endl << "Word Sequence Found!" << endl;
+						return 0;
+
+					}
+				}
+			}
+			tempWord = allWords[wordIndicies[wordIndicies.size()-1]];
+			}
+		}
+		if(verbosityLevel == 2) cout << endl;
+		if(intSearch(counters[2]+1, wordIndicies) != -1) {
+			counters[2]+=2;
+			startWord = allWords[counters[2]-1];
+		}
+		else {counters[2]++;}
+		counters[0]++;
+		if(counters[2] < allWords.size()) {tempWord = allWords[counters[2]];}
+		else{cout << "Conversion not possible using current dictionary!" << endl; return -1;}
+		
+	}
+
+
+	return -1;
+}
+
+
 
 //-----------------------------------------------------------------------------------------
 int main()
 {
 	vector< string> dictionary;    		// Vector of dictionary words read in from file
-	vector <int> wordsNumByLength;		// Vector of the amount of words where number of words is stored under the index of their lenght-1
+	vector <int> wordsNumByLength;		// Vector of the amount of words where number of words is stored under the index of theirth-1
 	int lengthOfWordsToUse = 3;         // Default length of word to use in word transformation
 	string startWord = "dog";           // The start word for transformation
 	string endWord = "cat";             // The end word for transformation
 	int menuOption = -1;                // User menu option selection
 	string fileName = "dictionary.txt";	// Using this in case file name will change
 	int totalWordsNumber = 0;			// Used to store total number of words
+	vector<string> foundSimilar = {};
+	
 	// Display ID info
 	displayIdInfo();
 	// Seed the random number generator
@@ -296,15 +373,18 @@ int main()
 		case 4:
 			playWordChangingGame(startWord, endWord, dictionary);
 			break;
-		case 5: break;
-		case 6: break;
-		case 7: break;
+		case 5: 
+			lookForWord(dictionary, startWord, endWord, 2);
+			break;
+		case 6: 
+			lookForWord(dictionary, startWord, endWord);
+			break;
+		case 7: 
+			lookForWord(dictionary, startWord, endWord, 1);
+			break;
 		case 8: exit(0); break;
 		default: exit(0); break;
 		}
 	} while (true);
 	return 0;
 }//end main()
-
-
-
