@@ -49,7 +49,7 @@ void readInWordsFromFile(string fileName, vector <string>& dictionary, int curre
 		exit(-1);
 	}
 
-	// Read all the words from the file and store those of current lenght into dictionary
+	// Read all the words from the file and store those of currentth into dictionary
 	while (inputFileStream >> inputWord) {
 		if (inputWord.length() == currentWordLength) {
 			if (isupper(inputWord[0])) {
@@ -112,7 +112,7 @@ void dictionaryScan(string fileName, vector<int>& wordsNumByLength, int& totalWo
 	}
 	//count total number of words and number of words by their length
 	while (getline(inputFileStream, line)) {
-		if (line.length() > wordsNumByLength.size()) {  // if the lenght hasn't been represented already
+		if (line.length() > wordsNumByLength.size()) {  // if the length hasn't been represented already
 			wordsNumByLength.resize(line.length(), 0);  // give additional memory to the vector for new data (second parameter sets default value to 0)
 		}
 		wordsNumByLength.at(line.length() - 1)++;
@@ -250,58 +250,76 @@ void displaySomeDictionaryWords(const vector <string>& dictionary) {
 		cout << i << " " << dictionary.at(i) << endl;
 	}
 }
+// The poorly implemented binary search function seems to only work correctly with the dictionary.
+int linearSearch(string searchWord, const vector<string>& dictionary){
+	for(int i = 0; i < dictionary.size(); i++){
+		if(searchWord == dictionary[i]) {return 1;}
+	}
+	return -1;
+}
 
-long findIndex (const vector<string>& dictionary, string searchWord){
-	int ind = 0;
-	for (int i = 0; i < dictionary.size(); i++){
-		if(dictionary[i] == searchWord) {
-			ind = i;
-			return ind;
+int intSearch(int searchInt, const vector<int>& indicieVector){
+	for(int i = 0; i < indicieVector.size(); i++){
+		if(indicieVector[i] == searchInt){
+			return i;
 		}
 	}
 	return -1;
 }
 
-int findSimilar(const vector<string>& dictionary, vector<string>& foundSimilar, string origWord, string wordToLookFor, vector<int>& currCounters, string endWord, int verbosityLevel){
-	string tempWord = wordToLookFor;
-	// Loop through the word to try all possible combinations of a word
+int lookForWord(const vector<string>& dictionary, string startWord, string endWord, int verbosityLevel = 0){
+	if(startWord == "" || endWord == "" || dictionary.empty()){
+		return -1;
+	}
+	// Starting Word
+	string tempWord = startWord;
+	// Vector to store words in
+	vector<string> allWords;
+	// Vector that contains the indicies of the starting words
+	vector<int> wordIndicies;
+	// Loop til found
+	vector<int> counters = {0, 1, 0};
+	bool found = false;
+	while(!found){
+		// Will get the next indicie to be pushed on to of allWords
+		wordIndicies.push_back(allWords.size());
+		// Push the tempWord value onto allWords
+		allWords.push_back(tempWord);
+		if(verbosityLevel == 2) cout << counters[0] << ": " << tempWord << "\t";
+		
+		for(int currLetter = 0; currLetter < tempWord.length(); currLetter++){
+			if(tempWord[currLetter] == startWord[currLetter]){
+			for(int newLetter = 97; newLetter < 123; newLetter++){
+				tempWord[currLetter] = newLetter;
+				// If the word is in the dictionary add it to allWords and print it
+				if(binarySearch(tempWord, dictionary) != -1 && linearSearch(tempWord, allWords) == -1){
+					allWords.push_back(tempWord);
+					if(verbosityLevel == 2) cout << counters[1] << ":" << tempWord << " ";
+					counters[1]++;
+					if(tempWord == endWord) {
+						cout << endl << "Word Sequence Found!" << endl;
+						return 0;
 
-		if(verbosityLevel == 2)cout << endl << currCounters[0] << ": " << wordToLookFor << "\t";
-		currCounters[0]++;
-	for(int i = 0; i < wordToLookFor.length(); i++){
-		//if(wordToLookFor[i] == origWord[i]){
-			for(int j = 97; j < 123; j++){
-				tempWord[i] = j;
-				if(binarySearch(tempWord, dictionary) != -1 && tempWord != wordToLookFor && findIndex(foundSimilar, tempWord) == -1 && tempWord != origWord){
-					
-					if(verbosityLevel == 2)cout << currCounters[1] << ": " << tempWord << " ";
-					foundSimilar.push_back(tempWord);
-					currCounters[1]++;
-					if(tempWord == endWord){
-						cout << endl << "Winning Sequence Was Found!";
-						return 1;
 					}
 				}
 			}
-		//}
-		tempWord = wordToLookFor;
-	}
-	return 0;
-}
-
-// Pass the dictionary by reference, so it isn't copied
-void genDeBuggy(const vector<string>& dictionary, string startWord, string endWord, int verbosityLevel = 2){
-	vector<string> similarWords;
-	vector<int> counter = {0, 1, 0};
-	int notFound = 0;
-	findSimilar(dictionary, similarWords, startWord, startWord, counter, endWord, verbosityLevel);
-	while(notFound == 0){
-		notFound = findSimilar(dictionary, similarWords, startWord, similarWords[counter[2]], counter, endWord, verbosityLevel);
-		counter[2]++;
-		if(similarWords[similarWords.size()-1] == similarWords[counter[2]]){
-			cout << "Word Not Found" << endl;
+			tempWord = allWords[wordIndicies[wordIndicies.size()-1]];
+			}
 		}
+		if(verbosityLevel == 2) cout << endl;
+		if(intSearch(counters[2]+1, wordIndicies) != -1) {
+			counters[2]+=2;
+			startWord = allWords[counters[2]-1];
+		}
+		else {counters[2]++;}
+		counters[0]++;
+		if(counters[2] < allWords.size()) {tempWord = allWords[counters[2]];}
+		else{cout << "Conversion not possible using current dictionary!" << endl; return -1;}
+		
 	}
+
+
+	return -1;
 }
 
 
@@ -310,7 +328,7 @@ void genDeBuggy(const vector<string>& dictionary, string startWord, string endWo
 int main()
 {
 	vector< string> dictionary;    		// Vector of dictionary words read in from file
-	vector <int> wordsNumByLength;		// Vector of the amount of words where number of words is stored under the index of their lenght-1
+	vector <int> wordsNumByLength;		// Vector of the amount of words where number of words is stored under the index of theirth-1
 	int lengthOfWordsToUse = 3;         // Default length of word to use in word transformation
 	string startWord = "dog";           // The start word for transformation
 	string endWord = "cat";             // The end word for transformation
@@ -356,12 +374,14 @@ int main()
 			playWordChangingGame(startWord, endWord, dictionary);
 			break;
 		case 5: 
-			genDeBuggy(dictionary, startWord, endWord);
+			lookForWord(dictionary, startWord, endWord, 2);
 			break;
 		case 6: 
-			genDeBuggy(dictionary, startWord, endWord, 0);
+			lookForWord(dictionary, startWord, endWord);
 			break;
-		case 7: break;
+		case 7: 
+			lookForWord(dictionary, startWord, endWord, 1);
+			break;
 		case 8: exit(0); break;
 		default: exit(0); break;
 		}
