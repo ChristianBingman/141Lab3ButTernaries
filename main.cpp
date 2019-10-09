@@ -370,7 +370,6 @@ int main()
 	string fileName = "dictionary.txt";	// Using this in case file name will change
 	int totalWordsNumber = 0;			// Used to store total number of words
 	vector<string> foundSimilar = {};
-
 	// Display ID info
 	displayIdInfo();
 	// Seed the random number generator
