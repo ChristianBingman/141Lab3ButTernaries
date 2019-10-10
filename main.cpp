@@ -5,13 +5,14 @@
  * System: Windows/Arch x64
  * Author: Anastasiia Evdokimova && Christian Bingman
  *
-*/
+ */
 #include <iostream>
 #include <string>
 #include <fstream> // For file input
 #include <vector> // For dictionary vector
 #include <iomanip> // For setw()
 #include <cctype> // For tolower()
+
 using namespace std;
 
 //---------------------------------------------------------------
@@ -21,11 +22,22 @@ void displayIdInfo()
 {
 	cout << " \n"
 		<< "Program #3: Work Play  \n"
-		<< "Author: Anastasiia Evdokimova && Christian Bingman     \n"
-		<< "Program: 3          \n"
-		<< "System:  Windows/Arch x64         \n"
+		<< "Author: Dale Reed      \n"
+		<< "Lab: Tues 8am          \n"
+		<< "System:  Codio         \n"
 		<< " \n";
 } //end displayIDInfo()
+
+void ExitProgram(bool yourChecksAreStrange = false)
+{
+	if (yourChecksAreStrange) {
+		cout << "Exiting program.";
+	}
+	else {
+		cout << "Exiting the program";
+	}
+	exit(0);
+}
 
 //-----------------------------------------------------------------------------------------
 //  You should use parameters for the dictionary, the word lengths array,
@@ -132,22 +144,24 @@ void printMainMenu()
 		<< "Your choice -> ";
 }
 
-void displayTotWordCount(int totalWordsNumber, const vector<int>& wordsNumByLength)
+void displayTotWordCount(int totalWordsNumber,
+	const vector<int>& wordsNumByLength)
 {
 	cout << "Total number of words in dictionary file : " << totalWordsNumber << endl
 		<< endl;
 	cout << "Word lengths where there are more than 1400 words: " << endl;
-	cout << "Length  How Many" << endl
-		<< "------  --------" << endl;
+	cout << "Length  How Many  " << endl
+		<< "------  --------  " << endl;
 	for (int i = 0; i < wordsNumByLength.size(); i++) {
 		if (wordsNumByLength.at(i) > 1400) {
-			cout << setw(6) << i + 1 << setw(8) << wordsNumByLength.at(i) << endl;
+			cout << setw(5) << i + 1 << setw(10) << wordsNumByLength.at(i) << endl;
 		}
 	}
 	cout << endl;
 }
 
-bool verifyWord(string word, const vector<string>& dictionary)
+bool verifyWord(string word,
+	const vector<string>& dictionary)
 {
 	long wordSearchIndex = binarySearch(word, dictionary);
 	// Check for the word length and presence in the dictionary
@@ -177,8 +191,8 @@ void getStartEndWords(const vector<string>& dictionary, string& startWord, strin
 			break;
 		}
 		// If user wishes to exit the program
-		if (endWord == "exit") {
-			exit(0);
+		if (startWord == "exit") {
+			ExitProgram(true);
 		}
 		// Check for the word length and presence in the dictionary
 		isWordVerifyed = verifyWord(startWord, dictionary);
@@ -195,7 +209,7 @@ void getStartEndWords(const vector<string>& dictionary, string& startWord, strin
 			break;
 		}
 		if (endWord == "exit") {
-			exit(0);
+			ExitProgram(true);
 		}
 		isWordVerifyed = verifyWord(endWord, dictionary);
 		if (!isWordVerifyed) {
@@ -204,7 +218,8 @@ void getStartEndWords(const vector<string>& dictionary, string& startWord, strin
 	} while (!isWordVerifyed);
 }
 
-void playWordChangingGame(string startWord, string endWord, const vector<string>& dictionary)
+void playWordChangingGame(string startWord, string endWord,
+	const vector<string>& dictionary)
 {
 	string currentWord, userInputWord; // Separate the user input since it has to pass all the checks first
 	int turnsCounter = 1, differentLettersAmount;
@@ -214,8 +229,9 @@ void playWordChangingGame(string startWord, string endWord, const vector<string>
 		return;
 	}
 	currentWord = startWord;
+	cout << endl;
 	do {
-		cout << "Previous word is '" << currentWord << "'. Next word: ";
+		cout << setw(2) << turnsCounter << ". Previous word is '" << currentWord << "'. Next word: ";
 		cin >> userInputWord;
 		if (userInputWord == "exit") {
 			return;
@@ -233,7 +249,6 @@ void playWordChangingGame(string startWord, string endWord, const vector<string>
 			}
 			else {
 				cout << "   *** '" << userInputWord << "' must be exactly 1 character different.  Please retry.";
-				exit(0);
 			}
 		}
 	} while (currentWord != endWord); // When user enters endWord and it passes all the checks, loop will end
@@ -249,13 +264,15 @@ void displaySomeDictionaryWords(const vector<string>& dictionary)
 		cin >> startIndex >> lastIndex;
 	} while ((startIndex < 0) || (lastIndex > dictionary.size() - 1) || (startIndex > lastIndex)); //check that indexes are not out of bound
 
+	cout << "About to display dictionary words from " << startIndex << " to " << lastIndex << endl;
 	//Display words from startIndex to lastIndex
 	for (int i = startIndex; i <= lastIndex; i++) {
-		cout << i << " " << dictionary.at(i) << endl;
+		cout << setw(5) << i << " " << dictionary.at(i) << endl;
 	}
 }
-// Binary search only works on sorted arrays
-int linearSearch(string searchWord, const vector<string>& dictionary)
+// The poorly implemented binary search function seems to only work correctly with the dictionary.
+int linearSearch(string searchWord,
+	const vector<string>& dictionary)
 {
 	for (int i = 0; i < dictionary.size(); i++) {
 		if (searchWord == dictionary[i]) {
@@ -265,7 +282,9 @@ int linearSearch(string searchWord, const vector<string>& dictionary)
 	return -1;
 }
 
-int intSearch(int searchInt, const vector<int>& indicieVector)
+// Manual search for unsorted array
+int intSearch(int searchInt,
+	const vector<int>& indicieVector)
 {
 	for (int i = 0; i < indicieVector.size(); i++) {
 		if (indicieVector[i] == searchInt) {
@@ -286,8 +305,12 @@ int lookForWord(const vector<string>& dictionary, string startWord, string endWo
 	vector<string> allWords;
 	// Vector that contains the indicies of the starting words
 	vector<int> wordIndicies;
-	// Loop til found
-	vector<int> counters = { 0, 1, 0 };
+	// Loop till found
+	vector<int> counters = {
+		0,
+		1,
+		0
+	};
 	bool found = false;
 	while (!found) {
 		// Will get the next indicie to be pushed on to of allWords
@@ -295,8 +318,7 @@ int lookForWord(const vector<string>& dictionary, string startWord, string endWo
 		// Push the tempWord value onto allWords
 		allWords.push_back(tempWord);
 		if (verbosityLevel == 2)
-			cout << counters[0] << ": " << tempWord << "\t";
-
+			cout << counters[0] << ". " << tempWord << ":   ";
 		for (int currLetter = 0; currLetter < tempWord.length(); currLetter++) {
 			if (tempWord[currLetter] == startWord[currLetter]) {
 				for (int newLetter = 97; newLetter < 123; newLetter++) {
@@ -308,26 +330,29 @@ int lookForWord(const vector<string>& dictionary, string startWord, string endWo
 							cout << counters[1] << ":" << tempWord << " ";
 						counters[1]++;
 						if (tempWord == endWord) {
-
 							if (verbosityLevel == 1) {
-								// Display word chain in reverse order
-								cout << counters[1] - 1 << ":" << tempWord << endl;
-								cout << counters[0] << ":" << allWords[wordIndicies[wordIndicies.size() - 1]] << endl;
+								cout << "Winning sequence in reverse order is:" << endl;
+								cout << setw(5) << counters[1] - 1 << ". " << tempWord << endl;
+								cout << setw(5) << counters[0] << ". " << allWords[wordIndicies[wordIndicies.size() - 1]] << endl;
 								string wordToSearch = allWords[wordIndicies[wordIndicies.size() - 1]];
-								int indexCounter[] = { 0, 1 };
-								bool startWordReached = false;
-								while (!startWordReached) {
+								int indexCounter[] = {
+									0,
+									1
+								};
+								bool finalParentFound = false;
+								// Printing all parents
+								while (!finalParentFound) {
 									for (int similarLoop = wordIndicies[indexCounter[0]] + 1; similarLoop < wordIndicies[indexCounter[1]]; similarLoop++) {
 										if (allWords[similarLoop] == wordToSearch) {
 											wordToSearch = allWords[wordIndicies[indexCounter[0]]];
-											cout << indexCounter[0] << ": " << allWords[wordIndicies[indexCounter[0]]] << endl;
+											cout << setw(5) << indexCounter[0] << ". " << allWords[wordIndicies[indexCounter[0]]] << endl;
 											indexCounter[0] = 0;
 											indexCounter[1] = 1;
 											similarLoop = 0;
 											continue;
 										}
-										if (wordToSearch == allWords[0]) {
-											startWordReached = true;
+										if (wordToSearch == allWords[0]) { // Exit when start word reached
+											finalParentFound = true;
 											break;
 										}
 									}
@@ -339,9 +364,9 @@ int lookForWord(const vector<string>& dictionary, string startWord, string endWo
 									}
 								}
 							}
-
-							cout << endl
-								<< "Word Sequence Found!" << endl;
+							if (verbosityLevel != 1)
+								cout << endl
+								<< "Winning sequence was found!" << endl;
 							return 0;
 						}
 					}
@@ -384,6 +409,7 @@ int main()
 	string fileName = "dictionary.txt"; // Using this in case file name will change
 	int totalWordsNumber = 0; // Used to store total number of words
 	vector<string> foundSimilar = {};
+
 	// Display ID info
 	displayIdInfo();
 	// Seed the random number generator
@@ -396,8 +422,7 @@ int main()
 	// Menu display and handling infinite loop
 	do {
 		cout << endl
-			<< "Currently we have " << dictionary.size() << " words of length "
-			<< lengthOfWordsToUse << " in the dictionary.  \n"
+			<< "Currently we have " << dictionary.size() << " words of length " << lengthOfWordsToUse << " in the dictionary.  \n"
 			<< "Changing from '" << startWord << "' to '" << endWord << "'" << endl
 			<< endl;
 		printMainMenu();
@@ -431,10 +456,10 @@ int main()
 			lookForWord(dictionary, startWord, endWord, 1);
 			break;
 		case 8:
-			exit(0);
+			ExitProgram();
 			break;
 		default:
-			exit(0);
+			ExitProgram();
 			break;
 		}
 	} while (true);
